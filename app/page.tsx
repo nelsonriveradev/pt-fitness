@@ -1,103 +1,206 @@
 import Image from "next/image";
+import Link from "next/link";
+import { dummyMembership } from "./DATA/membership";
+import MembershipCards from "./myComponents/MembershipCards";
+import { MapPin, Mail, Clock, Dumbbell } from "lucide-react";
+import Beneficios from "./myComponents/Beneficios";
+import NavBar from "./myComponents/NavBar";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <main>
+      <NavBar />
+      {/* hero section */}
+      <section className="w-full py-12 md:py-24">
+        <div className="container px-4 mx-auto">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="flex flex-col justify-center space-y-4">
+              <div className="space-y-2">
+                <h1 className="text-3xl font-bold tracking-tighter  md:text-5xl/none">
+                  Transforma tu cuerpo en poco tiempo
+                </h1>
+                <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                  At FitFlex Gym, we believe fitness is not just about looking
+                  good, but feeling great. Join our community and start your
+                  journey to a healthier you.
+                </p>
+                <div className="">
+                  <button className="px-8 text-lg">Join Now</button>
+                  <button className="px-8 bg-zinc-700 py-2 rounded-lg text-white">
+                    Learn More
+                  </button>
+                </div>
+              </div>
+            </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+              src={`/images/gym_1.jpg`}
+              width={500}
+              height={500}
+              alt="working out at the gym"
+              className="overflow-hidden rounded-xl object-cover object-center mx-auto "
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </section>
+      {/* Memberships */}
+      <section className="w-full bg-zinc-200 py-10">
+        <div className="flex flex-col items-center space-y-1 mb-5">
+          <h1 className="text-3xl font-bold text-center">Membresias</h1>
+          <p className="text-md text-center text-zinc-600">
+            Escoge la membresia que cumpla con tus metas
+          </p>
+        </div>
+        <div className="flex items-center gap-6 justify-center gap-x-20">
+          {dummyMembership.map((membership) => (
+            <MembershipCards
+              key={membership.title}
+              title={membership.title}
+              titleDescription={membership.titleDescription}
+              price={membership.price}
+              isPopular={membership.isPopular}
+              features={membership.features}
+            />
+          ))}
+        </div>
+      </section>
+      {/* Beneficios */}
+      <section className="py-12">
+        <div className="flex flex-col text-center items- gap-y-2 mb-8">
+          <h1 className="text-4xl font-bold">Lo que te ofrecemos</h1>
+          <p className="text-md font-zinc-500">
+            Todo lo que necesitas en un mismo lugar
+          </p>
+        </div>
+        <Beneficios />
+      </section>
+      {/* Contact Form */}
+      <section className="px-8 py-12">
+        <div className="text-center flex flex-col items-center mx-auto mb-14">
+          <h1 className="text-5xl font-bold ">¡Contáctanos Hoy!</h1>
+          <h4 className="text-xl text-zinc-500">
+            ¿Tienes preguntas? Te ayudamos. Envianos un mensaje.
+          </h4>
+        </div>
+        <div className="grid grid-cols-2 mx-auto">
+          <div className="space-y-4 px-8 flex flex-col justify-center">
+            <div className="flex items-center space-x-3">
+              <MapPin className="h-5 w-5 text-primary" />
+              <span>123 Fitness Street, Gym City, GC 12345</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Mail className="h-5 w-5 text-primary" />
+              <span>info@fitflexgym.com</span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Clock className="h-5 w-5 text-primary" />
+              <span>Mon-Fri: 5am-11pm, Sat-Sun: 7am-9pm</span>
+            </div>
+            <div className="mt-6">
+              <h3 className="text-xl font-bold mb-4">Follow Us</h3>
+              <div className="flex space-x-4">
+                <Link
+                  href="#"
+                  className="rounded-full bg-muted p-2 text-muted-foreground hover:text-primary"
+                >
+                  <Image
+                    src={`/icons/Facebook_Logo_Primary.png`}
+                    alt="facebook logo"
+                    width={30}
+                    height={30}
+                  />
+                  <span className="sr-only">Facebook</span>
+                </Link>
+                <Link
+                  href="#"
+                  className="rounded-full bg-muted p-2 text-muted-foreground hover:text-primary"
+                >
+                  <Image
+                    src={`/icons/Instagram_Glyph_Gradient.png`}
+                    alt="Instagram logo"
+                    width={30}
+                    height={30}
+                  />
+                  <span className="sr-only">Instagram</span>
+                </Link>
+                <Link
+                  href="#"
+                  className="rounded-full bg-muted p-2 text-muted-foreground hover:text-primary"
+                >
+                  <Image
+                    src={`/icons/Digital_Glyph_Green.png`}
+                    alt="WhatsApp Logo"
+                    width={30}
+                    height={30}
+                  />
+                  <span className="sr-only">WhatsApp</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-4 px-4">
+            <form className="space-y-4 ">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
+                  <input
+                    name="name"
+                    placeholder="Nombre"
+                    className="w-full border-2 border-zinc-700 rounded-lg p-2 shadow-md"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Correo Electrónico"
+                    className="w-full border-2 border-zinc-700 rounded-lg p-2 shadow-md"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="Teléfono"
+                  className="w-full border-2 border-zinc-700 rounded-lg p-2 shadow-md"
+                />
+              </div>
+              <div className="space-y-2">
+                <textarea
+                  name="message"
+                  placeholder="Tu mensaje"
+                  className="min-h-[120px] p-2 border-2 border-zinc-700 rounded-2xl w-full shadow-md"
+                />
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+      <footer className="w-full border-t py-6 px-4">
+        <div className="container flex flex-col items-center justify-center gap-4 md:flex-row md:gap-8">
+          <div className="flex items-center gap-2 font-bold">
+            <Dumbbell className="h-6 w-6" />
+            <span>FitFlex Gym</span>
+          </div>
+          <p className="text-center text-sm text-muted-foreground md:text-left">
+            © {new Date().getFullYear()} FitFlex Gym. All rights reserved.
+          </p>
+          <div className="flex gap-4 md:ml-auto md:gap-2">
+            <Link
+              href="#"
+              className="text-sm underline-offset-4 hover:underline"
+            >
+              Terms
+            </Link>
+            <Link
+              href="#"
+              className="text-sm underline-offset-4 hover:underline"
+            >
+              Privacy
+            </Link>
+          </div>
+        </div>
       </footer>
-    </div>
+    </main>
   );
 }
