@@ -1,3 +1,4 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { dummyMembership } from "./DATA/membership";
@@ -5,11 +6,13 @@ import MembershipCards from "./myComponents/MembershipCards";
 import { MapPin, Mail, Clock, Dumbbell } from "lucide-react";
 import Beneficios from "./myComponents/Beneficios";
 import NavBar from "./myComponents/NavBar";
+import { useUser } from "@clerk/nextjs";
 
 export default function Home() {
+  const { isSignedIn, user, isLoaded } = useUser();
   return (
     <main>
-      <NavBar />
+      <NavBar isLoaded={isLoaded} isSignedIn={isSignedIn!} user={user} />
       {/* hero section */}
       <section className="w-full py-12 md:py-24">
         <div className="container px-4 mx-auto">

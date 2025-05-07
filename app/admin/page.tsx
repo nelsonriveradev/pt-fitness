@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { SignedIn, UserButton } from "@clerk/nextjs";
 
 import {
   Dumbbell,
@@ -17,16 +18,20 @@ import {
   Filter,
   Download,
   MoreHorizontal,
+  Eye, // Added Eye icon
+  Pencil, // Added Pencil icon
+  Trash2, // Added Trash2 icon
+  Menu,
 } from "lucide-react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button"; // Import Button
 
 import {
   Select,
@@ -54,7 +59,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ClientData, mockClients } from "../DATA/clients";
+import { ClientData, mockClients } from "../DATA/clients"; // Assuming this path is correct
+import { Input } from "@/components/ui/input"; // Import Input
+
 export default function AdminPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -74,125 +81,37 @@ export default function AdminPage() {
 
     return matchesSearch && matchesStatus && matchesMembership;
   });
+
+  // Format date helper
+  const formatDate = (date: string | Date | undefined): string => {
+    if (!date) return "-";
+    const dateObj = typeof date === "string" ? new Date(date) : date;
+    return dateObj.toLocaleDateString("es-ES", {
+      // Use Spanish locale
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   return (
     <div className="">
-      <aside className="fixed inset-y-0 left-0 z-10 hidden w-64 border-r bg-background md:flex md:flex-col">
-        <div className="flex h-16 items-center border-b px-6">
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl">
-            <Dumbbell className="h-6 w-6" />
-            <span>FitFlex Admin</span>
-          </Link>
-        </div>
-        <nav className="flex-1 overflow-auto py-4">
-          <div className="px-4 py-2">
-            <h2 className="mb-2 px-2 text-lg font-semibold tracking-tight">
-              Dashboard
-            </h2>
-            <div className="space-y-1">
-              <Link
-                href="/admin"
-                className="flex items-center gap-3 rounded-lg bg-primary/10 px-3 py-2 text-primary transition-all hover:text-primary"
-              >
-                <BarChart3 className="h-5 w-5" />
-                <span>Resumen</span>
-              </Link>
-              <Link
-                href="/admin"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <Users className="h-5 w-5" />
-                <span>Clientes</span>
-              </Link>
-              <Link
-                href="/admin"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <CreditCard className="h-5 w-5" />
-                <span>Membresias</span>
-              </Link>
-              <Link
-                href="/admin"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <Calendar className="h-5 w-5" />
-                <span>Clases</span>
-              </Link>
-            </div>
-          </div>
-          <div className="px-4 py-2">
-            <h2 className="mb-2 px-2 text-lg font-semibold tracking-tight">
-              Ajustes
-            </h2>
-            <div className="space-y-1">
-              <Link
-                href="/admin"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <Settings className="h-5 w-5" />
-                <span>General</span>
-              </Link>
-              <Link
-                href="/"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <Home className="h-5 w-5" />
-                <span>Ver página Web</span>
-              </Link>
-              <Link
-                href="/admin"
-                className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-              >
-                <LogOut className="h-5 w-5" />
-                <span>Cerrar session</span>
-              </Link>
-            </div>
-          </div>
-        </nav>
-      </aside>
-
       {/* Main content */}
-      <div className="flex flex-1 flex-col md:pl-64">
+      <div className="flex flex-col">
         {/* Top Navigation */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-          <div className="flex items-center gap-2 md:hidden">
-            <Dumbbell className="h-6 w-6" />
-            <span className="font-bold">FitFlex Admin</span>
-          </div>
-          <div className="ml-auto flex items-center gap-4">
-            <button className="flex items-center gap-x-1 text-white bg-zinc-700 rounded-md px-2 py-1">
-              <span className="sr-only md:not-sr-only md:inline-block">
-                View Website
-              </span>
-              <Home className="h-4 w-4 md:mr-2 md:h-4 md:w-4" />
-            </button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="relative h-8 w-8 rounded-full">
-                  <span className="font-semibold">JD</span>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
 
         {/* Dashboard Content */}
         <main className="flex-1 p-4 md:p-6">
           <div className="flex flex-col gap-4 md:gap-8">
             <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Panel de Control
+              </h1>
               <div className="flex items-center gap-2">
-                <button className="flex items-center gap-x-1 text-white bg-zinc-700 rounded-md px-2 py-1">
+                <Button>
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Add New Client
-                </button>
+                  Añadir Nuevo Cliente
+                </Button>
               </div>
             </div>
 
@@ -201,56 +120,62 @@ export default function AdminPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Total Clients
+                    Clientes Totales
                   </CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">245</div>
+                  <div className="text-2xl font-bold">{mockClients.length}</div>{" "}
+                  {/* Use actual length */}
                   <p className="text-xs text-muted-foreground">
-                    +12% from last month
+                    {/* +12% desde el mes pasado */} {/* Dynamic data needed */}
                   </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Active Memberships
+                    Membresías Activas
                   </CardTitle>
                   <CreditCard className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">189</div>
+                  <div className="text-2xl font-bold">
+                    {mockClients.filter((c) => c.status === "Activo").length}{" "}
+                    {/* Calculate active */}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    +5% from last month
+                    {/* +5% desde el mes pasado */} {/* Dynamic data needed */}
                   </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Monthly Revenue
+                    Ingresos Mensuales
                   </CardTitle>
                   <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">$12,450</div>
+                  <div className="text-2xl font-bold">$12,450</div>{" "}
+                  {/* Placeholder */}
                   <p className="text-xs text-muted-foreground">
-                    +18% from last month
+                    +18% desde el mes pasado {/* Placeholder */}
                   </p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                   <CardTitle className="text-sm font-medium">
-                    Class Attendance
+                    Asistencia a Clases
                   </CardTitle>
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">87%</div>
+                  <div className="text-2xl font-bold">87%</div>{" "}
+                  {/* Placeholder */}
                   <p className="text-xs text-muted-foreground">
-                    +2% from last month
+                    +2% desde el mes pasado {/* Placeholder */}
                   </p>
                 </CardContent>
               </Card>
@@ -258,98 +183,107 @@ export default function AdminPage() {
 
             {/* Tabs for different sections */}
             <Tabs defaultValue="clients" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 md:w-auto">
-                <TabsTrigger value="clients">Clients</TabsTrigger>
-                <TabsTrigger value="memberships">Memberships</TabsTrigger>
-                <TabsTrigger value="classes">Classes</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 md:w-auto md:inline-flex">
+                <TabsTrigger value="clients">Clientes</TabsTrigger>
+                <TabsTrigger value="memberships">Membresías</TabsTrigger>
+                <TabsTrigger value="classes">Clases</TabsTrigger>
               </TabsList>
 
               {/* Clients Tab Content */}
               <TabsContent value="clients" className="space-y-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Client Management</CardTitle>
+                    <CardTitle>Gestión de Clientes</CardTitle>
                     <CardDescription>
-                      View and manage all gym members. Use filters to narrow
-                      down results.
+                      Ver y gestionar todos los miembros del gimnasio. Usa los
+                      filtros para acotar resultados.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Search and Filters */}
                     <div className="flex flex-col gap-4 md:flex-row">
-                      <div className="flex w-full items-center space-x-2 md:w-1/3">
-                        <Search className="h-4 w-4 text-muted-foreground" />
-                        <input
-                          placeholder="Search clients..."
-                          className="flex-1"
+                      <div className="relative w-full md:w-1/3">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="search"
+                          placeholder="Buscar clientes..."
+                          className="w-full rounded-lg bg-background pl-8" // Use Input component
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                         />
                       </div>
-                      <div className="flex flex-1 flex-col gap-4 sm:flex-row">
-                        <div className="flex items-center gap-2">
-                          <Select
-                            value={statusFilter}
-                            onValueChange={setStatusFilter}
-                          >
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                              <SelectValue placeholder="Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="all">
-                                Todo los Status
-                              </SelectItem>
-                              <SelectItem value="Active">Activo</SelectItem>
-                              <SelectItem value="Inactive">Inactivo</SelectItem>
-                              <SelectItem value="Pending">Pendiente</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Select
-                            value={membershipFilter}
-                            onValueChange={setMembershipFilter}
-                          >
-                            <SelectTrigger className="w-full sm:w-[180px]">
-                              <SelectValue placeholder="Membership" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="all">
-                                Todas las Membresias
-                              </SelectItem>
-                              <SelectItem value="Basic">Básica</SelectItem>
-                              <SelectItem value="Standard">Estandar</SelectItem>
-                              <SelectItem value="Premium">Premium</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                      <div className="flex flex-1 flex-col gap-4 sm:flex-row sm:items-center">
+                        <Select
+                          value={statusFilter}
+                          onValueChange={setStatusFilter}
+                        >
+                          <SelectTrigger className="w-full sm:w-[180px]">
+                            <SelectValue placeholder="Estado" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">
+                              Todos los Estados
+                            </SelectItem>
+                            <SelectItem value="Activo">Activo</SelectItem>
+                            <SelectItem value="Inactivo">Inactivo</SelectItem>
+                            <SelectItem value="Pendiente">
+                              Pendiente
+                            </SelectItem>{" "}
+                            {/* Assuming 'Pending' exists */}
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={membershipFilter}
+                          onValueChange={setMembershipFilter}
+                        >
+                          <SelectTrigger className="w-full sm:w-[180px]">
+                            <SelectValue placeholder="Membresía" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">
+                              Todas las Membresías
+                            </SelectItem>
+                            <SelectItem value="Básica">Básica</SelectItem>{" "}
+                            {/* Assuming 'Básica' exists */}
+                            <SelectItem value="Estandar">Estándar</SelectItem>
+                            <SelectItem value="Premium">Premium</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <div className="ml-auto flex items-center gap-2">
-                          <button className="flex items-center  rounded-sm p-2">
+                          <Button variant="outline" size="sm">
                             <Filter className="mr-2 h-4 w-4" />
-                            More Filters
-                          </button>
-                          <button className="flex items-center  rounded-sm p-2">
+                            Más Filtros
+                          </Button>
+                          <Button variant="outline" size="sm">
                             <Download className="mr-2 h-4 w-4" />
-                            Export
-                          </button>
+                            Exportar
+                          </Button>
                         </div>
                       </div>
                     </div>
 
                     {/* Clients Table */}
-                    <div className="rounded-md border">
+                    <div className="overflow-x-auto rounded-md border">
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Email</TableHead>
-                            <TableHead>Phone</TableHead>
-                            <TableHead>Membership</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Join Date</TableHead>
-                            <TableHead>Last Visit</TableHead>
+                            <TableHead>Nombre</TableHead>
+                            <TableHead className="hidden md:table-cell">
+                              Email
+                            </TableHead>
+                            <TableHead className="hidden lg:table-cell">
+                              Teléfono
+                            </TableHead>
+                            <TableHead>Membresía</TableHead>
+                            <TableHead>Estado</TableHead>
+                            <TableHead className="hidden lg:table-cell">
+                              Fecha Ingreso
+                            </TableHead>
+                            <TableHead className="hidden xl:table-cell">
+                              Última Visita
+                            </TableHead>
                             <TableHead className="text-right">
-                              Actions
+                              Acciones
                             </TableHead>
                           </TableRow>
                         </TableHeader>
@@ -360,7 +294,7 @@ export default function AdminPage() {
                                 colSpan={8}
                                 className="h-24 text-center"
                               >
-                                No clients found.
+                                No se encontraron clientes.
                               </TableCell>
                             </TableRow>
                           ) : (
@@ -369,8 +303,12 @@ export default function AdminPage() {
                                 <TableCell className="font-medium">
                                   {client.name}
                                 </TableCell>
-                                <TableCell>{client.email}</TableCell>
-                                <TableCell>{client.phone}</TableCell>
+                                <TableCell className="hidden md:table-cell">
+                                  {client.email}
+                                </TableCell>
+                                <TableCell className="hidden lg:table-cell">
+                                  {client.phone}
+                                </TableCell>
                                 <TableCell>
                                   <Badge
                                     variant={
@@ -393,49 +331,59 @@ export default function AdminPage() {
                                         ? "destructive"
                                         : "secondary"
                                     }
-                                    className={
+                                    className={`whitespace-nowrap ${
                                       client.status === "Activo"
-                                        ? "bg-green-100 text-green-800"
+                                        ? "bg-green-100 text-green-800 border border-green-200"
                                         : client.status === "Inactivo"
-                                        ? "bg-red-100 text-red-800"
-                                        : "bg-yellow-100 text-yellow-800"
-                                    }
+                                        ? "bg-red-100 text-red-800 border border-red-200"
+                                        : "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                                    }`}
                                   >
                                     {client.status}
                                   </Badge>
                                 </TableCell>
-                                <TableCell>
-                                  {typeof client.joinDate === "string"
-                                    ? client.joinDate
-                                    : client.joinDate.toLocaleDateString()}
+                                <TableCell className="hidden lg:table-cell">
+                                  {formatDate(client.joinDate)}
                                 </TableCell>
-                                <TableCell>
-                                  {typeof client.lastVisit === "string"
-                                    ? client.lastVisit
-                                    : client.lastVisit.toLocaleDateString()}
+                                <TableCell className="hidden xl:table-cell">
+                                  {formatDate(client.lastVisit)}
                                 </TableCell>
                                 <TableCell className="text-right">
                                   <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                      <button>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8"
+                                      >
                                         <MoreHorizontal className="h-4 w-4" />
-                                        <span className="sr-only">Actions</span>
-                                      </button>
+                                        <span className="sr-only">
+                                          Acciones
+                                        </span>
+                                      </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
-                                      <DropdownMenuItem>
+                                      <DropdownMenuLabel>
+                                        Acciones
+                                      </DropdownMenuLabel>
+                                      <DropdownMenuSeparator />
+                                      <DropdownMenuItem asChild>
                                         <Link
-                                          href={`admin/clientes/${client.id}`}
+                                          href={`/admin/clientes/${client.id}`}
+                                          className="flex items-center cursor-pointer"
                                         >
-                                          View Details
+                                          <Eye className="mr-2 h-4 w-4" />
+                                          Ver Detalles
                                         </Link>
                                       </DropdownMenuItem>
-                                      <DropdownMenuItem>
-                                        Edit Client
+                                      <DropdownMenuItem className="flex items-center cursor-pointer">
+                                        <Pencil className="mr-2 h-4 w-4" />
+                                        Editar Cliente
                                       </DropdownMenuItem>
                                       <DropdownMenuSeparator />
-                                      <DropdownMenuItem className="text-red-600">
-                                        Delete Client
+                                      <DropdownMenuItem className="flex items-center text-red-600 cursor-pointer focus:text-red-600 focus:bg-red-50">
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        Eliminar Cliente
                                       </DropdownMenuItem>
                                     </DropdownMenuContent>
                                   </DropdownMenu>
@@ -447,14 +395,19 @@ export default function AdminPage() {
                       </Table>
                     </div>
                   </CardContent>
-                  <CardFooter className="flex items-center justify-between">
+                  <CardFooter className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div className="text-sm text-muted-foreground">
-                      Showing <strong>{filteredClients.length}</strong> of{" "}
-                      <strong>{mockClients.length}</strong> clients
+                      Mostrando <strong>{filteredClients.length}</strong> de{" "}
+                      <strong>{mockClients.length}</strong> clientes
                     </div>
+                    {/* Add Pagination component here later */}
                     <div className="flex items-center gap-2">
-                      <button disabled>Previous</button>
-                      <button>Next</button>
+                      <Button variant="outline" size="sm" disabled>
+                        Anterior
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        Siguiente
+                      </Button>
                     </div>
                   </CardFooter>
                 </Card>
@@ -464,15 +417,16 @@ export default function AdminPage() {
               <TabsContent value="memberships">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Membership Management</CardTitle>
+                    <CardTitle>Gestión de Membresías</CardTitle>
                     <CardDescription>
-                      View and manage all membership plans and subscriptions.
+                      Ver y gestionar todos los planes de membresía y
+                      suscripciones.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex h-40 items-center justify-center">
+                    <div className="flex h-40 items-center justify-center rounded-md border border-dashed">
                       <p className="text-muted-foreground">
-                        Membership management content will appear here.
+                        El contenido de gestión de membresías aparecerá aquí.
                       </p>
                     </div>
                   </CardContent>
@@ -483,15 +437,16 @@ export default function AdminPage() {
               <TabsContent value="classes">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Class Schedule Management</CardTitle>
+                    <CardTitle>Gestión de Horario de Clases</CardTitle>
                     <CardDescription>
-                      View and manage all fitness classes and schedules.
+                      Ver y gestionar todas las clases de fitness y horarios.
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="flex h-40 items-center justify-center">
+                    <div className="flex h-40 items-center justify-center rounded-md border border-dashed">
                       <p className="text-muted-foreground">
-                        Class schedule management content will appear here.
+                        El contenido de gestión de horarios de clases aparecerá
+                        aquí.
                       </p>
                     </div>
                   </CardContent>

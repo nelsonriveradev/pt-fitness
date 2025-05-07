@@ -1,6 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
-export default function NavBar() {
+
+export default function NavBar({
+  user,
+  isLoaded,
+  isSignedIn,
+}: {
+  user: any;
+  isLoaded: boolean;
+  isSignedIn: boolean;
+}) {
   return (
     <header className=" flex justify-evenly items-center sticky top-0 z-40 rounded-2xl py-4  backdrop-blur supports-[backdrop-filter]:bg-background/20 w-1/2 mx-auto shadow-lg">
       <div className="flex items-center justify-between">
@@ -35,9 +44,14 @@ export default function NavBar() {
           Contact
         </Link>
       </nav>
-      <button className="bg-zinc-700 text-white rounded-lg px-2 py-1">
+
+      <Link
+        href={`unirme`}
+        prefetch={true}
+        className="bg-zinc-700 text-white rounded-lg px-2 py-1"
+      >
         Únete ahora
-      </button>
+      </Link>
     </header>
   );
 }
