@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <main>
       <NavBar isLoaded={isLoaded} isSignedIn={isSignedIn!} user={user} />
-      {/* hero section */}
+      {/* sección de héroe */}
       <section className="w-full py-12 md:py-24">
         <div className="container px-4 mx-auto">
           <div className="grid gap-6 md:grid-cols-2">
@@ -23,14 +23,14 @@ export default function Home() {
                   Transforma tu cuerpo en poco tiempo
                 </h1>
                 <p className="max-w-[600px] text-muted-foreground md:text-xl">
-                  At FitFlex Gym, we believe fitness is not just about looking
-                  good, but feeling great. Join our community and start your
-                  journey to a healthier you.
+                  En FitFlex Gym, creemos que el fitness no es solo verse bien,
+                  sino sentirse genial. Únete a nuestra comunidad y comienza tu
+                  viaje hacia una vida más saludable.
                 </p>
                 <div className="">
-                  <button className="px-8 text-lg">Join Now</button>
+                  <button className="px-8 text-lg">Únete Ahora</button>
                   <button className="px-8 bg-zinc-700 py-2 rounded-lg text-white">
-                    Learn More
+                    Aprende Más
                   </button>
                 </div>
               </div>
@@ -40,18 +40,18 @@ export default function Home() {
               src={`/images/gym_1.jpg`}
               width={500}
               height={500}
-              alt="working out at the gym"
+              alt="entrenando en el gimnasio"
               className="overflow-hidden rounded-xl object-cover object-center mx-auto "
             />
           </div>
         </div>
       </section>
-      {/* Memberships */}
+      {/* Membresías */}
       <section className="w-full bg-zinc-200 py-10">
         <div className="flex flex-col items-center space-y-1 mb-5">
-          <h1 className="text-3xl font-bold text-center">Membresias</h1>
+          <h1 className="text-3xl font-bold text-center">Membresías</h1>
           <p className="text-md text-center text-zinc-600">
-            Escoge la membresia que cumpla con tus metas
+            Escoge la membresía que cumpla con tus metas
           </p>
         </div>
         <div className="flex items-center gap-6 justify-center gap-x-20">
@@ -77,19 +77,19 @@ export default function Home() {
         </div>
         <Beneficios />
       </section>
-      {/* Contact Form */}
+      {/* Formulario de Contacto */}
       <section className="px-8 py-12">
         <div className="text-center flex flex-col items-center mx-auto mb-14">
           <h1 className="text-5xl font-bold ">¡Contáctanos Hoy!</h1>
           <h4 className="text-xl text-zinc-500">
-            ¿Tienes preguntas? Te ayudamos. Envianos un mensaje.
+            ¿Tienes preguntas? Te ayudamos. Envíanos un mensaje.
           </h4>
         </div>
         <div className="grid grid-cols-2 mx-auto">
           <div className="space-y-4 px-8 flex flex-col justify-center">
             <div className="flex items-center space-x-3">
               <MapPin className="h-5 w-5 text-primary" />
-              <span>123 Fitness Street, Gym City, GC 12345</span>
+              <span>123 Calle Fitness, Ciudad Gimnasio, GC 12345</span>
             </div>
             <div className="flex items-center space-x-3">
               <Mail className="h-5 w-5 text-primary" />
@@ -97,10 +97,10 @@ export default function Home() {
             </div>
             <div className="flex items-center space-x-3">
               <Clock className="h-5 w-5 text-primary" />
-              <span>Mon-Fri: 5am-11pm, Sat-Sun: 7am-9pm</span>
+              <span>Lun-Vie: 5am-11pm, Sáb-Dom: 7am-9pm</span>
             </div>
             <div className="mt-6">
-              <h3 className="text-xl font-bold mb-4">Follow Us</h3>
+              <h3 className="text-xl font-bold mb-4">Síguenos</h3>
               <div className="flex space-x-4">
                 <Link
                   href="#"
@@ -108,7 +108,7 @@ export default function Home() {
                 >
                   <Image
                     src={`/icons/Facebook_Logo_Primary.png`}
-                    alt="facebook logo"
+                    alt="logo de Facebook"
                     width={30}
                     height={30}
                   />
@@ -120,7 +120,7 @@ export default function Home() {
                 >
                   <Image
                     src={`/icons/Instagram_Glyph_Gradient.png`}
-                    alt="Instagram logo"
+                    alt="logo de Instagram"
                     width={30}
                     height={30}
                   />
@@ -132,7 +132,7 @@ export default function Home() {
                 >
                   <Image
                     src={`/icons/Digital_Glyph_Green.png`}
-                    alt="WhatsApp Logo"
+                    alt="logo de WhatsApp"
                     width={30}
                     height={30}
                   />
@@ -186,20 +186,21 @@ export default function Home() {
             <span>FitFlex Gym</span>
           </div>
           <p className="text-center text-sm text-muted-foreground md:text-left">
-            © {new Date().getFullYear()} FitFlex Gym. All rights reserved.
+            © {new Date().getFullYear()} FitFlex Gym. Todos los derechos
+            reservados.
           </p>
           <div className="flex gap-4 md:ml-auto md:gap-2">
             <Link
               href="#"
               className="text-sm underline-offset-4 hover:underline"
             >
-              Terms
+              Términos
             </Link>
             <Link
               href="#"
               className="text-sm underline-offset-4 hover:underline"
             >
-              Privacy
+              Privacidad
             </Link>
           </div>
         </div>

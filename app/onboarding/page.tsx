@@ -23,6 +23,7 @@ export type UserOnboardingData = {
   phone: string;
   fitnessGoals: string[];
   isOnboardingComplete: boolean;
+  isMemberActive: boolean;
 };
 
 // Initial empty user data
@@ -33,6 +34,7 @@ const initialUserData: UserOnboardingData = {
   phone: "",
   fitnessGoals: [],
   isOnboardingComplete: false,
+  isMemberActive: false,
 };
 
 export default function OnboardingPage() {
@@ -41,6 +43,7 @@ export default function OnboardingPage() {
   const [userData, setUserData] = useState<UserOnboardingData>(initialUserData);
   const [isLoading, setIsLoading] = useState(false);
   const { isLoaded, user } = useUser();
+  const [isSubmitting, setIsSubmitting] = useState(false); // Specific for form submission
 
   // Total number of steps in the onboarding process
   const totalSteps = 3;
@@ -123,20 +126,53 @@ export default function OnboardingPage() {
 
   // Handle form submission
   const handleSubmit = async () => {
-    if (validateStep()) {
-      setIsLoading(true);
-      try {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        setUserData((prev) => ({
-          ...prev,
-          isOnboardingComplete: true,
-        }));
-        setCurrentStep(3);
-      } catch (error) {
-        console.error("Error saving onboarding data:", error);
-      } finally {
-        setIsLoading(false);
+    if (!validateStep()) {
+      return;
+    }
+    if (!isLoaded || !user) {
+      toast.error("Usuario no encontrado. Por favor intentar de nuevo.");
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      setUserData((prev) => ({
+        ...prev,
+        isOnboardingComplete: true,
+        isMemberActive: false,
+      }));
+      const response = await fetch("/api/onboarding/complete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          clerkId: user?.id, // Pass the clerkId
+          onboardingData: userData, // Pass the collected onboarding data
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error en guardar data");
       }
+
+      // const result = await response.json(); // Optional: use result if needed
+      // console.log("Onboarding save result:", result);
+
+      toast.success("Onboarding exitosamente completado!");
+
+      // Update local state and proceed to completion step
+
+      setCurrentStep(3); // Move to the completion/summary step
+    } catch (error: any) {
+      console.error("Error saving onboarding data:", error);
+      toast.error(
+        error.message || "Un error ocurrio mientras se guardaba la data"
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -149,9 +185,9 @@ export default function OnboardingPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-muted/30">
         <div className="text-center">
-          <h2 className="text-lg font-medium">Loading...</h2>
+          <h2 className="text-lg font-medium">Cargando...</h2>
           <p className="text-sm text-muted-foreground">
-            Please wait while we prepare your onboarding experience
+            Por favor espera mientras preparamos tu experiencia de incorporación
           </p>
         </div>
       </div>
@@ -219,7 +255,7 @@ export default function OnboardingPage() {
                 </Button>
               ) : (
                 <Button onClick={handleSubmit} disabled={isLoading}>
-                  {isLoading ? "Saving..." : "Complete"}
+                  {isLoading ? "Guardando..." : "Completar"}
                   {!isLoading && <CheckCircle2 className="ml-2 h-4 w-4" />}
                 </Button>
               )}
