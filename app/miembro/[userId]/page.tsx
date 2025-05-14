@@ -5,7 +5,8 @@ import { useUser } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { UserButton } from "@clerk/nextjs";
-import { connectToDatabase } from "@/lib/mongodb/mongo";
+import { PaymentLog } from "@/lib/actions/insertPayment";
+import { fetchPaymentsById } from "@/lib/actions/fetchPaymentsById";
 import { useParams, useSearchParams } from "next/navigation"; // useSearchParams
 // import Confetti from "react-confetti"; // Confetti is now in Congrats.tsx
 import {
@@ -111,12 +112,98 @@ export default function UserDashboard() {
   const [loading, setLoading] = useState(true);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [payments, setPayments] = useState<PaymentLog[]>();
+  const [processLoading, setProcessLoading] = useState(false);
   const [profileData, setProfileData] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
   });
+
+  //handle Cancellation
+  async function handleCancellation() {
+    if (!dbUser || !dbUser.clerkId) {
+      console.log("Usuario no encontrado");
+      return;
+    }
+
+    try {
+      setProcessLoading(true);
+      const response = await fetch("/api/user/membership/cancelation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          clerkId: dbUser.clerkId,
+          customerId: dbUser.stripeCustomerId,
+          // Send the clerkId of the logged-in user
+          // Alternatively, if you have the customerId from another source:
+          // customerId: "cus_xxxxxxxxxxxxxx"
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        console.error(data.error);
+        //Error Toast
+      } else {
+        //success toast
+
+        console.log("Se ha cancelado la membresia con éxito.");
+      }
+      setProcessLoading(false);
+    } catch (error) {
+    } finally {
+      setProcessLoading(false);
+    }
+  }
+
+  //fetch Payments
+
+  useEffect(() => {
+    async function getPayments() {
+      if (dbUser?.clerkId) {
+        // Only fetch if dbUser and clerkId are available
+        console.log(
+          `UserDashboard: Fetching payments for clerkId: ${dbUser.clerkId}`
+        );
+        try {
+          const response = await fetch(`/api/user/payments/${dbUser.clerkId}`);
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error(
+              "UserDashboard: Failed to fetch payments:",
+              errorData.error || response.statusText
+            );
+            setPayments([]); // Set to empty array or handle error state
+            return;
+          }
+          const fetchedPaymentLogs: PaymentLog[] = await response.json();
+          console.log("UserDashboard: Fetched payments:", fetchedPaymentLogs);
+          setPayments(fetchedPaymentLogs); // Directly set the fetched logs
+        } catch (error) {
+          console.error(
+            "UserDashboard: Error fetching payments via API:",
+            error
+          );
+          setPayments([]); // Set to empty array or handle error state
+        }
+      } else {
+        console.log(
+          "UserDashboard: Cannot fetch payments, dbUser or dbUser.clerkId is not available yet."
+        );
+        // Optionally set payments to empty or a specific loading/default state
+        // if dbUser is not yet loaded when this effect runs.
+      }
+    }
+
+    // Call getPayments only when dbUser is loaded and has a clerkId
+    if (dbUser && dbUser.clerkId) {
+      getPayments();
+    }
+    // This effect should depend on dbUser to re-run when dbUser is populated.
+  }, [dbUser]); // Dependency array updated to dbUser
 
   const [showCongratsModal, setShowCongratsModal] = useState(false);
   const [triggerConfetti, setTriggerConfetti] = useState(false);
@@ -611,15 +698,14 @@ export default function UserDashboard() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {dbUser?.paymentHistory &&
-                          dbUser.paymentHistory.length > 0 ? (
-                            dbUser.paymentHistory.map((payment, index) => (
+                          {(payments ?? []).length > 0 ? (
+                            (payments ?? []).map((payment, index) => (
                               <TableRow key={index}>
                                 <TableCell className="whitespace-nowrap">
-                                  {formatDate(payment.date)}
+                                  {formatDate(payment.createdAt)}
                                 </TableCell>
                                 <TableCell className="whitespace-nowrap">
-                                  {payment.amount}
+                                  {`$${payment.amount / 100}`}
                                 </TableCell>
                                 <TableCell>
                                   <Badge
@@ -629,16 +715,20 @@ export default function UserDashboard() {
                                         : "destructive"
                                     }
                                     className={`whitespace-nowrap text-xs ${
-                                      payment.status === "Pagado"
+                                      payment.status === "paid"
                                         ? "bg-green-100 text-green-800"
                                         : "bg-red-100 text-red-800"
                                     }`}
                                   >
-                                    {payment.status}
+                                    {payment.status === "paid"
+                                      ? "pagado"
+                                      : "no pagado"}
                                   </Badge>
                                 </TableCell>
                                 <TableCell className="whitespace-nowrap">
-                                  {payment.method}
+                                  {payment.paymentMethod === "card"
+                                    ? "tarjeta"
+                                    : "otro"}
                                 </TableCell>
                                 <TableCell>
                                   <Button
@@ -646,7 +736,7 @@ export default function UserDashboard() {
                                     size="sm"
                                     className="h-auto p-0 whitespace-nowrap"
                                   >
-                                    {payment.invoice}
+                                    {payment.receiptUrl}
                                   </Button>
                                 </TableCell>
                               </TableRow>
@@ -736,16 +826,28 @@ export default function UserDashboard() {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      size="sm"
-                      onClick={() => {
-                        /* Logic to open MembershipPopup */
-                      }}
-                    >
-                      Cambiar Plan de Membresía
-                    </Button>
+                    <div className="flex flex-col gap-y-2 w-full items-center">
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        size="sm"
+                        onClick={() => {
+                          /* Logic to open MembershipPopup */
+                        }}
+                      >
+                        Cambiar Plan de Membresía
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="w-full transition-all duration-100 ease-in-out active:scale-110"
+                        size="sm"
+                        onClick={handleCancellation}
+                      >
+                        {processLoading
+                          ? "Procesando..."
+                          : "Cancelar Membresía"}
+                      </Button>
+                    </div>
                   </CardFooter>
                 </Card>
               </TabsContent>

@@ -12,7 +12,7 @@ export interface MembershipData {
   titleDescription: string;
   price: string | number;
   isPopular: boolean;
-  features: string[];
+  features?: string[];
 }
 
 export default function MembershipCards({
@@ -49,11 +49,15 @@ export default function MembershipCards({
       </CardHeader>
       <CardContent className="flex-1">
         <ul className="space-y-2 text-sm">
-          {features.map((feat) => (
-            <li key={feat} className="flex items-center">
-              ✓ {feat}
-            </li>
-          ))}
+          {features?.length === 0 ? (
+            features!.map((feat) => (
+              <li key={feat} className="flex items-center">
+                ✓ {feat}
+              </li>
+            ))
+          ) : (
+            <p>No features</p>
+          )}
         </ul>
       </CardContent>
       <CardFooter>

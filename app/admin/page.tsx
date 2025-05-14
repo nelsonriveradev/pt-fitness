@@ -1,8 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { SignedIn, UserButton } from "@clerk/nextjs";
+import { StripeProduct } from "./membresias/page";
+import { MembershipTierDialog } from "../myComponents/membership-tier-creation";
+import MembershipCards from "../myComponents/MembershipCards";
+import { MembershipTierCard } from "../myComponents/AdminMembershipTier";
 
 import {
   Dumbbell,
@@ -63,21 +67,139 @@ import { ClientData, mockClients } from "../DATA/clients"; // Assuming this path
 import { Input } from "@/components/ui/input"; // Import Input
 
 export default function AdminPage() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [products, setProducts] = useState<StripeProduct[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [currentTier, setCurrentTier] = useState<any>(null);
+  const [membershipTiers, setMembershipTiers] = useState<StripeProduct[]>([]);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [membershipFilter, setMembershipFilter] = useState("all");
+  const [users, setUsers] = useState<ClientData[]>([]);
 
+  useEffect(() => {
+    const fetchMemberships = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch("/api/stripe/products");
+        if (!res.ok) {
+          const errorText = await res.text();
+          console.error(
+            `Admin Page: Error fetching products. Status: ${res.status} Body: ${errorText}`
+          );
+        }
+        const data = await res.json();
+        console.log("AdminPage: Fetched data:", data);
+        if (data && data.products) {
+          setProducts(
+            data.products.map((product: StripeProduct) => ({
+              ...product,
+              // Ensure image property exists
+            }))
+          );
+          console.log("AdminPage: Products set in state:", data.products);
+        } else {
+          console.warn(
+            "AdminPage: No 'products' array found in the response data or data is null/undefined."
+          );
+          setProducts([]); // Set to empty array if no products found
+        }
+      } catch (err) {
+        console.error(
+          "AdminPage Error: Error fetching products from Stripe:",
+          err
+        );
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMemberships();
+  }, []);
+
+  const handleAddTier = () => {
+    setCurrentTier(null);
+    setIsDialogOpen(true);
+  };
+
+  const handleEditTierClick = (tierId: string) => {
+    const tierToEdit = products.find((p) => p.id === tierId);
+    if (tierToEdit) {
+      setCurrentTier(tierToEdit);
+      setIsDialogOpen(true);
+      console.log("Editing tier:", tierId);
+    } else {
+      console.error("Tier not found for editing:", tierId);
+    }
+  };
+
+  const handleDeleteTierClick = (tierId: string) => {
+    // Implement your deletion logic
+    // This might involve an API call to Stripe and then updating the state
+    console.log("Attempting to delete tier:", tierId);
+    // Example: Optimistically remove from UI or refetch after deletion
+    // setProducts(prevProducts => prevProducts.filter(p => p.id !== tierId));
+    alert(`Placeholder: Delete tier ${tierId}`);
+  };
+  // Handle saving a new or edited tier
+  const handleSaveTier = (tierData: any) => {
+    if (currentTier) {
+      // Edit existing tier
+      setMembershipTiers(
+        membershipTiers.map((tier) =>
+          tier.id === currentTier.id ? { ...tier, ...tierData } : tier
+        )
+      );
+    } else {
+      // Add new tier
+      const newTier = {
+        ...tierData,
+        id: `tier-${Date.now()}`,
+        active: true,
+        memberCount: 0,
+        revenue: 0,
+      };
+      setMembershipTiers([...membershipTiers, newTier]);
+    }
+    setIsDialogOpen(false);
+  };
+  //handle membershipDialog
+
+  //fetch user from Db
+  useEffect(() => {
+    async function getAllUsers() {
+      try {
+        const allUsers = await fetch("/api/user/getAll");
+        const data = await allUsers.json();
+        setUsers(data);
+      } catch (error) {}
+    }
+    getAllUsers();
+  }, []);
   // Filter clients based on search term and filters
-  const filteredClients = mockClients.filter((client) => {
+  const filteredClients = users.filter((client) => {
     const matchesSearch =
-      client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.firstName!.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.phone.toString().includes(searchTerm);
 
     const matchesStatus =
-      statusFilter === "all" || client.status === statusFilter;
+      statusFilter === "all" ||
+      (statusFilter === "Activo" && client.isMemberActive) ||
+      (statusFilter === "Inactivo" && !client.isMemberActive);
+    const clientMembershipTypeLower = (
+      client.membershipType || ""
+    ).toLowerCase();
     const matchesMembership =
-      membershipFilter === "all" || client.membershipType === membershipFilter;
+      membershipFilter === "all" ||
+      (membershipFilter === "Básica" &&
+        clientMembershipTypeLower === "basic") ||
+      (membershipFilter === "Estandar" &&
+        clientMembershipTypeLower === "standard") ||
+      (membershipFilter === "Premium" &&
+        clientMembershipTypeLower === "premium");
 
     return matchesSearch && matchesStatus && matchesMembership;
   });
@@ -266,7 +388,7 @@ export default function AdminPage() {
                     <div className="overflow-x-auto rounded-md border">
                       <Table>
                         <TableHeader>
-                          <TableRow>
+                          <TableRow key={`name`}>
                             <TableHead>Nombre</TableHead>
                             <TableHead className="hidden md:table-cell">
                               Email
@@ -289,7 +411,7 @@ export default function AdminPage() {
                         </TableHeader>
                         <TableBody>
                           {filteredClients.length === 0 ? (
-                            <TableRow>
+                            <TableRow key={`error`}>
                               <TableCell
                                 colSpan={8}
                                 className="h-24 text-center"
@@ -301,7 +423,7 @@ export default function AdminPage() {
                             filteredClients.map((client) => (
                               <TableRow key={client.id}>
                                 <TableCell className="font-medium">
-                                  {client.name}
+                                  {`${client.firstName} ${client.lastName}`}
                                 </TableCell>
                                 <TableCell className="hidden md:table-cell">
                                   {client.email}
@@ -339,7 +461,9 @@ export default function AdminPage() {
                                         : "bg-yellow-100 text-yellow-800 border border-yellow-200"
                                     }`}
                                   >
-                                    {client.status}
+                                    {client.isMemberActive
+                                      ? "Activo"
+                                      : "Inactivo"}
                                   </Badge>
                                 </TableCell>
                                 <TableCell className="hidden lg:table-cell">
@@ -417,13 +541,43 @@ export default function AdminPage() {
               <TabsContent value="memberships">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Gestión de Membresías</CardTitle>
-                    <CardDescription>
-                      Ver y gestionar todos los planes de membresía y
-                      suscripciones.
-                    </CardDescription>
+                    <div className="flex justify-between items-center">
+                      <div className="">
+                        <CardTitle>Gestión de Membresías</CardTitle>
+                        <CardDescription>
+                          Ver y gestionar todos los planes de membresía y
+                          suscripciones.
+                        </CardDescription>
+                      </div>
+                      <div className="">
+                        <Button onClick={handleAddTier}>
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Add New Tier
+                        </Button>
+                      </div>
+                    </div>
                   </CardHeader>
                   <CardContent>
+                    <div className="flex justify-evenly items-center">
+                      {products.map(
+                        (
+                          productTier // Renamed 'tiers' to 'productTier' for clarity
+                        ) => (
+                          <MembershipTierCard
+                            key={productTier.id} // Use productTier.id as key
+                            tier={productTier} // Pass the whole product object
+                            onEdit={handleEditTierClick} // Pass the edit handler
+                            onDelete={handleDeleteTierClick} // Pass the delete handler
+                            // memberCount and revenue are optional; pass them if you have this data per product
+                            // For example, if your API returns it:
+                            // memberCount={productTier.memberCount || 0}
+                            // revenue={productTier.revenue || 0}
+                          />
+                        )
+                      )}
+                    </div>
+
+                    {products.length}
                     <div className="flex h-40 items-center justify-center rounded-md border border-dashed">
                       <p className="text-muted-foreground">
                         El contenido de gestión de membresías aparecerá aquí.
@@ -454,6 +608,12 @@ export default function AdminPage() {
               </TabsContent>
             </Tabs>
           </div>
+          <MembershipTierDialog
+            open={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            tier={currentTier}
+            onSave={handleSaveTier}
+          />
         </main>
       </div>
     </div>

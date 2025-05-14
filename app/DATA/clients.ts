@@ -1,13 +1,16 @@
-export interface ClientData {
+export type ClientData = {
   id: string | number;
   name: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
   phone: string | number;
   membershipType: "Básico" | "Estandar" | "Premium";
-  status: "Activo" | "Inactivo" | "Pendiente";
+  status: "Activo" | "Inactivo" | "Pendiente" | string;
+  isMemberActive?: boolean;
   joinDate: Date | string;
   lastVisit: Date | string;
-}
+};
 
 export const mockClients: ClientData[] = [
   {

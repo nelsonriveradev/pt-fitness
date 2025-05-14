@@ -36,3 +36,26 @@ export const dummyMembership: MembershipData[] = [
     ],
   },
 ];
+
+//type
+
+export interface MembershipDataType {
+  id: string; // Unique identifier for the membership record itself
+  userId: string; // Identifier for the user this membership belongs to (e.g., Clerk User ID)
+  stripeSubscriptionId?: string; // Stripe Subscription ID, if applicable
+  stripeCustomerId?: string; // Stripe Customer ID, if applicable
+  planId: string; // Identifier for the specific plan (e.g., "plan_basic", "plan_premium")
+  planName: "Basic" | "Standard" | "Premium" | string; // User-friendly plan name
+  status: "active" | "inactive" | "cancelled";
+  startDate: Date;
+  endDate?: Date | null; // For fixed-term memberships or if cancelled
+  renewalDate?: Date | null; // Next billing date for active subscriptions
+  price: number; // Price paid for this period
+  currency: string; // e.g., "USD", "EUR"
+  billingInterval: "month" | "year" | "one-time" | string; // Billing frequency
+  features?: string[]; // List of features included in this membership
+  cancellationReason?: string; // Reason if cancelled
+  cancelledAt?: Date | null; // Date when the cancellation was processed or will take effect
+  createdAt: Date;
+  updatedAt: Date;
+}
