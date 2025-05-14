@@ -1,5 +1,6 @@
 "use client";
 import Congrats from "@/app/myComponents/Congrats";
+import UserQRCode from "@/app/myComponents/UserQRCode";
 import type React from "react";
 import { useUser } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
@@ -438,12 +439,7 @@ export default function UserDashboard() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" asChild>
-              <Link className="flex items-center" href="/">
-                <Home className="mr-2 h-4 w-4" />
-                <span>Volver al Inicio</span>
-              </Link>
-            </Button>
+            <UserQRCode userId={user.id} />
             {/* Ensure clerkId is passed to MembershipPopup */}
             <MembershipPopup clerkId={user.id} />
           </div>
